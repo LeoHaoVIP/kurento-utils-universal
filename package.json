@@ -4,6 +4,10 @@
   "author": "LeoHao",
   "main": "lib/index.js",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LeoHaoVIP/kurento-utils-universal.git"
+  },
   "dependencies": {
     "freeice": "^2.1.2",
     "hark": "^1.0.0",
