@@ -1,6 +1,6 @@
 {
   "name": "kurento-utils-universal",
-  "version": "6.18.0",
+  "version": "6.18.2",
   "author": "LeoHao",
   "main": "lib/index.js",
   "license": "Apache-2.0",
