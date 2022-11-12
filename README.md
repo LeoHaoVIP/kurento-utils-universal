@@ -16,10 +16,12 @@ Copyright 2018 [Kurento]. Licensed under [Apache 2.0 License].
 Kurento Utils for Node.js and Browsers
 ======================================
 
-> Notes: This library is optimized by LeoHao (2867555086@qq.com), currently it adds supports for ScreenShare for most browsers including Electron without extra plugins.
+> Notes: 
 > Source code can be found in [kurento-utils-github-repo](https://github.com/LeoHaoVIP/kurento-utils-universal)
 
-*kurento-utils-js* is a browser library that can be used to simplify creation and handling of [RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection) objects, to control the browser’s [WebRTC API](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API).
+*kurento-utils-js* is a browser library that can be used to simplify creation and handling of [RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection) objects, to control the browser’s [WebRTC API](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API). However, the official kurento-utils-js is no longer maintained, and problems might occur when using the official library.
+
+This library is an optimized version of kurento-utils-js [v6.18.0](https://www.npmjs.com/package/kurento-utils/v/6.18.0), currently it adds supports for screen sharing for mainstream browsers (as well as Electron) without extra plugins.
 
 
 Installation instructions
@@ -46,14 +48,11 @@ cd kurento-utils-universal
 npm install
 ```
 
-Screen sharing is naturally supported via `getDisplayMedia` in common browsers, as for Electron, screen sharing is implemented via `getUserMedia` with providing mandatory constrains. **No extra plugin is necessary**.
-
-
-Changes on Official kurento-utils
+Updates on Official kurento-utils Library
 ======================================
 - Update enum values of `sendSource`
 
-    The official kurento-utils support two kinds of send sources, which are `webcam` and `screen`. In this updated library, we have provided four commonly used sharing modes, which are `audio`|`screen`|`camera`|`mix`. y
+    The official kurento-utils support two kinds of send sources, which are `webcam` and `screen`. In this updated library, we have provided four commonly used sharing modes, which are `audio`|`screen`|`camera`|`mix`.
     
     When a user is sharing on `mix` mode, the camera and screen media is mixed into one single media stream via  [MultiStreamMixer](https://github.com/muaz-khan/MultiStreamsMixer).
     
@@ -63,13 +62,13 @@ Changes on Official kurento-utils
   
   Most browsers now naturally support `getDisplayMedia` for screen sharing. In this updated library, we utilized it and implemented `getScreenMedia`, thus users can share their screen without installing any plugins. 
   
-  Besides, considering that there are many developers who are writing WebRTC codes on [Electron](https://www.electronjs.org/) framework, we also implemented `getScreenMediaForElectron` based on `getUserMedia` and `Electron DesktopCapturer`.
+  Besides, considering that many developers are writing WebRTC codes on [Electron](https://www.electronjs.org/) framework, we also implemented `getScreenMediaForElectron` and `getMixMediaForElectron` using [desktopCapturer](https://www.electronjs.org/docs/latest/api/desktop-capturer) module of `Electron`.
   
   
 
 ---
 
-> The next following documents are directly copied from official kurento-utils`.
+> The next following document is directly copied from official `kurento-utils` project.
 
 ---
 
