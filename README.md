@@ -16,63 +16,62 @@ Copyright 2018 [Kurento]. Licensed under [Apache 2.0 License].
 Kurento Utils for Node.js and Browsers
 ======================================
 
-> Notes: This library is update by LeoHao (2867555086@qq.com), currently it adds support for ScreenShare for most browers and Electron.
-
-> :warning: **Warning**
->
-> This library is not actively maintained. It was written to simplify the [Kurento Tutorials](https://doc-kurento.readthedocs.io/en/latest/user/tutorials.html) and has several shortcomings for more advanced uses.
->
-> For real-world applications we recommend to **avoid using this library** and instead to write your JavaScript code directly against the browser’s WebRTC API.
+> Notes: This library is optimized by LeoHao (2867555086@qq.com), currently it adds supports for ScreenShare for most browsers including Electron without extra plugins.
+> Source code can be found in [kurento-utils-github-repo](https://github.com/LeoHaoVIP/kurento-utils-universal)
 
 *kurento-utils-js* is a browser library that can be used to simplify creation and handling of [RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection) objects, to control the browser’s [WebRTC API](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API).
-
 
 
 Installation instructions
 -------------------------
 
-Be sure to have installed [Node.js](https://nodejs.org/en/) and [Bower](https://bower.io/) in your system:
+Be sure to have installed [Node.js](https://nodejs.org/en/) in your system:
 
 ```bash
 curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 sudo apt-get install -y nodejs
-sudo npm install -g bower
 ```
 
-To install the library, it's recommended to do that from the [NPM repository](https://www.npmjs.com/):
+To install the library, it's recommended to do that from the [NPM repository](https://www.npmjs.com/package/kurento-utils-universal):
 
 ```bash
-npm install kurento-utils
+npm install kurento-utils-universal
 ```
 
 Alternatively, you can download the code using git and install manually its dependencies:
 
 ```bash
-git clone https://github.com/Kurento/kurento-utils
-cd kurento-utils
+git clone https://github.com/LeoHaoVIP/kurento-utils-universal.git
+cd kurento-utils-universal
 npm install
 ```
 
-Screen and window sharing depends on the privative module `kurento-browser-extensions`. To enable its support, you'll need to install
-the package dependency manually or use a `getScreenConstraints` function yourself on runtime. If it's not available, when trying to share the screen or a window content it will throw an exception.
+Screen sharing is naturally supported via `getDisplayMedia` in common browsers, as for Electron, screen sharing is implemented via `getUserMedia` with providing mandatory constrains. **No extra plugin is necessary**.
 
 
+Changes on Official kurento-utils
+======================================
+- Update enum values of `sendSource`
 
-### Browser
+    The official kurento-utils support two kinds of send sources, which are `webcam` and `screen`. In this updated library, we have provided four commonly used sharing modes, which are `audio`|`screen`|`camera`|`mix`. y
+    
+    When a user is sharing on `mix` mode, the camera and screen media is mixed into one single media stream via  [MultiStreamMixer](https://github.com/muaz-khan/MultiStreamsMixer).
+    
+    <img src="README/image-20221112113723815.png" alt="image-20221112113723815" style="zoom:50%;" />
+    
+- Add supports for free-plugin screen sharing
+  
+  Most browsers now naturally support `getDisplayMedia` for screen sharing. In this updated library, we utilized it and implemented `getScreenMedia`, thus users can share their screen without installing any plugins. 
+  
+  Besides, considering that there are many developers who are writing WebRTC codes on [Electron](https://www.electronjs.org/) framework, we also implemented `getScreenMediaForElectron` based on `getUserMedia` and `Electron DesktopCapturer`.
+  
+  
 
-To build the browser version of the library you'll only need to exec the [grunt](https://gruntjs.com) task runner and they will be generated on the `dist` folder. Alternatively, if you don't have it globally installed, you can run a local copy by executing:
+---
 
-```bash
-node_modules/.bin/grunt
-```
+> The next following documents are directly copied from official kurento-utils`.
 
-
-
-Acknowledges
-------------
-
-* [Bertrand CHEVRIER](https://github.com/krampstudio) for
-  [grunt-jsdoc](https://github.com/krampstudio/grunt-jsdoc)
+---
 
 
 
@@ -111,7 +110,7 @@ Usage:
 
 Issues:
 
-* [Bug Tracker](https://github.com/Kurento/bugtracker/issues)
+* [Bug Tracker](https://github.com/LeoHaoVIP/kurento-utils-universal/issues)
 * [Support](https://doc-kurento.readthedocs.io/en/latest/user/support.html)
 
 News:
