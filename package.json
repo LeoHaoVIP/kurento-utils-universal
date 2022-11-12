@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LeoHaoVIP/kurento-utils-universal.git"
+    "url": "git://github.com/LeoHaoVIP/kurento-utils-universal.git"
   },
   "dependencies": {
     "freeice": "^2.1.2",
@@ -84,9 +84,6 @@
     "srtp",
     "rtsp"
   ],
-  "optionalDependencies": {
-    "kurento-browser-extensions": "*"
-  },
   "scripts": {
     "coveralls": "scripts/coveralls",
     "test": "scripts/test"
