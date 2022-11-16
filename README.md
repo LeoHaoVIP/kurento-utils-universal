@@ -56,7 +56,7 @@ Updates on Official kurento-utils Library
     
     When a user is sharing on `mix` mode, the camera and screen media are mixed into one single media stream via  [MultiStreamMixer](https://github.com/muaz-khan/MultiStreamsMixer).
     
-    <img src="README/image-20221112113723815.png" alt="image-20221112113723815" style="zoom:50%;" />
+    [![mix-demo.png](https://i.postimg.cc/rm3kJCxk/mix-demo.png)](https://postimg.cc/ZB82YNw7)
     
 - Add supports for free-plugin screen sharing
   
