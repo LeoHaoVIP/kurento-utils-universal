@@ -11,21 +11,13 @@ Copyright 2018 [Kurento]. Licensed under [Apache 2.0 License].
 [KurentoImage]: https://secure.gravatar.com/avatar/21a2a12c56b2a91c8918d5779f1778bf?s=120
 [Apache 2.0 License]: http://www.apache.org/licenses/LICENSE-2.0
 
-
-
-Kurento Utils for Node.js and Browsers
-======================================
-
-> Notes: 
-> Source code can be found in [kurento-utils-github-repo](https://github.com/LeoHaoVIP/kurento-utils-universal)
+# Kurento Utils for Node.js and Browsers
 
 *kurento-utils-js* is a browser library that can be used to simplify creation and handling of [RTCPeerConnection](https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection) objects, to control the browser’s [WebRTC API](https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API). However, the official kurento-utils-js is no longer maintained, and problems might occur when using the official library.
 
-This library is an optimized version of kurento-utils-js [v6.18.0](https://www.npmjs.com/package/kurento-utils/v/6.18.0), currently it adds supports for screen sharing for mainstream browsers (as well as Electron) without extra plugins.
+This library is an optimized version of [kurento-utils-js](https://www.npmjs.com/package/kurento-utils/v/6.18.0), currently it adds supports for screen sharing and mixed media sharing for mainstream browsers (as well as Electron, since [v6.18.6](https://www.npmjs.com/package/kurento-utils-universal/v/6.18.6)) without extra plugins.
 
-
-Installation instructions
--------------------------
+## Installation Instructions
 
 Be sure to have installed [Node.js](https://nodejs.org/en/) in your system:
 
@@ -48,11 +40,19 @@ cd kurento-utils-universal
 npm install
 ```
 
-Updates on Official kurento-utils Library
-======================================
-- Update enum values of `sendSource`
+## Developing Instructions
 
-    The official kurento-utils support two kinds of send sources, which are `webcam` and `screen`. In this updated library, we have provided four commonly used sharing modes, which are `audio`|`screen`|`camera`|`mix`.
+### Quickly Shift
+
+If you have read the [kurento-docs](https://doc-kurento.readthedocs.io/en/stable/features/kurento_utils_js.html) and already known how to build WebRTC applications with the official [kurento-utils-js](https://www.npmjs.com/package/kurento-utils/v/6.18.0), you can quickly enjoy the new features by replacing the official dependency item with `{"kurento-utils-universal": "latest"}` in your `package.json` file.
+
+Compared to coding with the official library, the only action that you should make is to update the `sendSource` field when creating [WebRtcPeer](https://doc-kurento.readthedocs.io/en/stable/features/kurento_utils_js.html#webrtcpeer). Update details about `sendSource` are provided below.
+
+### Updates on Official Library
+
+- Update enumeration values of `sendSource`
+
+    The official [kurento-utils-js](https://www.npmjs.com/package/kurento-utils/v/6.18.0) supports two kinds of send sources, which are `webcam` and `screen`. In this updated library, we have provided four commonly used sharing modes, which are `audio`|`screen`|`camera`|`mix`.
     
     When a user is sharing on `mix` mode, the camera and screen media are mixed into one single media stream via  [MultiStreamMixer](https://github.com/muaz-khan/MultiStreamsMixer).
     
@@ -60,19 +60,87 @@ Updates on Official kurento-utils Library
     
 - Add supports for free-plugin screen sharing
   
-  Most browsers now naturally support `getDisplayMedia` for screen sharing. In this updated library, we utilized it and implemented `getScreenMedia`, thus users can share their screen without installing extra browser plugins. 
+  Most browsers now naturally support `getDisplayMedia` for screen sharing. In this updated library, we utilized it and implemented `getScreenMedia`, thus users can share their screen without installing extra browser plugins.
   
-  Besides, considering that many developers are writing WebRTC codes on [Electron](https://www.electronjs.org/) framework, we also implemented `getScreenMediaForElectron` and `getMixMediaForElectron` using [desktopCapturer](https://www.electronjs.org/docs/latest/api/desktop-capturer) module of `Electron`.
+  Besides, considering that some developers are writing WebRTC applications running on [Electron](https://www.electronjs.org/) framework, since [v6.18.6](https://www.npmjs.com/package/kurento-utils-universal/v/6.18.6), we also implemented `getScreenMediaForElectron` and `getMixMediaForElectron` using [desktopCapturer](https://www.electronjs.org/docs/latest/api/desktop-capturer) module of `Electron`.
   
-  
+  It's worth noting that developers don't need to make any extra actions or configuration to start screen sharing, the only thing that you should do is to assign `'screen'` or `'mix'` to the `sendSource` field.
+
+### Screen Sharing on Electron
+
+Screen sharing works perfectly on mainstream browsers, such as Chrome, Firefox, Microsoft Edge. When the [WebRtcPeer](https://doc-kurento.readthedocs.io/en/stable/features/kurento_utils_js.html#webrtcpeer) is created with `sendSource` as `'screen'` or `'mix'`, a window will pop up and ask user to select the target window (or the entire screen) to share.
+
+[![popup-window.png](README/popup-window.png)](https://postimg.cc/CZBfP2Dt)
+
+However, Things get different when WebRTC applications are running on [Electron](https://www.electronjs.org/), since no popup window will show up.
+
+In this library, we have implemented the basic screen sharing functionality for Electron applications. By default, the target sharing media source is the entire screen.
+
+#### Sharing Certain Window on Electron
+
+If you want to share a certain window instead of the entire screen on Electron, some coordination is required on the Electron application.
+
+**Step1. Get a list of screen and window media sources via `desktopCapturer`.**
+
+```javascript
+// main.js of Electron application
+const {desktopCapturer} = require('electron');
+
+desktopCapturer.getSources({types: ['window', 'screen']}).then(async sources => {
+    for (const source of sources) {
+        //Add your media source selection logic
+    }
+})
+```
+
+The next following is a sample of media source object. The `id` field will be used in the next step.
+
+```json
+// A sample of media source object
+{
+  name: 'app',
+  id: 'window:854492:1',
+  thumbnail: NativeImage {...},
+  display_id: '',
+  appIcon: null
+}
+```
+
+**Step2. Select the target media source ID and pass it to the HTML WebRTC page .**
+
+> Note: The HTML WebRTC page is deployed remotely and not specifically designed for Electron.
+
+```javascript
+// main.js of Electron application
+const injectJs="document.getElementById('electron-media-source-id').innerText=${targetSourceId};";
+// Inject js code when the HTML WebRTC page is loaded
+tab.webview.executeJavaScript(injectJs);
+```
+
+**Explanation**
+
+In this [kurento-utils-universal](https://www.npmjs.com/package/kurento-utils-universal) library, we have created an invisible element with id `electron-media-source-id` to interact with Electron. Developers need to pass the `targetSourceId` to this element, and then the library will start sharing the target media. The relevant codes in our library are as follows:
+
+```javascript
+
+screenConstrains.video = {
+    mandatory: {
+        chromeMediaSource: 'desktop',
+        // Use media source ID retrieved from electronMediaIdSlot
+        // electronMediaIdSlot is the invisable element with id 'electron-media-source-id'
+        chromeMediaSourceId: electronMediaIdSlot.innerText
+    }
+};
+```
+
+After finishing the above steps, a certain window media can be shared on Electron.
+
 
 ---
 
 > The next following document is directly copied from official `kurento-utils` project.
 
 ---
-
-
 
 About Kurento
 =============
