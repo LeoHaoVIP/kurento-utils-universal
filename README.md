@@ -70,7 +70,7 @@ Compared to coding with the official library, the only action that you should ma
 
 Screen sharing works perfectly on mainstream browsers, such as Chrome, Firefox, Microsoft Edge. When the [WebRtcPeer](https://doc-kurento.readthedocs.io/en/stable/features/kurento_utils_js.html#webrtcpeer) is created with `sendSource` as `'screen'` or `'mix'`, a window will pop up and ask user to select the target window (or the entire screen) to share.
 
-[![popup-window.png](README/popup-window.png)](https://postimg.cc/CZBfP2Dt)
+[![popup-window.png](https://i.postimg.cc/MGtbT2GW/popup-window.png)](https://postimg.cc/CZBfP2Dt)
 
 However, Things get different when WebRTC applications are running on [Electron](https://www.electronjs.org/), since no popup window will show up.
 
@@ -95,7 +95,7 @@ desktopCapturer.getSources({types: ['window', 'screen']}).then(async sources => 
 
 The next following is a sample of media source object. The `id` field will be used in the next step.
 
-```json
+```javascript
 // A sample of media source object
 {
   name: 'app',
