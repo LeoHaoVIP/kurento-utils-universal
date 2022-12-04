@@ -122,7 +122,9 @@ app.whenReady().then(() => {
             targetMediaSourceId = source.id;
         }
         // Send the target media source to the Renderer Process
-        mainWindow.webContents.send('media-source-id', targetMediaSourceId);
+        mainWindow.webContents.on('did-finish-load', () => {
+            mainWindow.webContents.send('media-source-id', targetMediaSourceId);
+        })
     })
 })
 ```
