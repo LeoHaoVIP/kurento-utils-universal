@@ -56,7 +56,7 @@ Compared to coding with the official library, the only action that you should ma
     
     When a user is sharing on `mix` mode, the camera and screen media are mixed into one single media stream via  [MultiStreamMixer](https://github.com/muaz-khan/MultiStreamsMixer).
     
-    [![mix-demo.png](https://i.postimg.cc/rm3kJCxk/mix-demo.png)](https://postimg.cc/ZB82YNw7)
+    ![mix-demo.png](https://i.postimg.cc/rm3kJCxk/mix-demo.png)
     
 - Add supports for free-plugin screen sharing
   
@@ -70,30 +70,64 @@ Compared to coding with the official library, the only action that you should ma
 
 Screen sharing works perfectly on mainstream browsers, such as Chrome, Firefox, Microsoft Edge. When the [WebRtcPeer](https://doc-kurento.readthedocs.io/en/stable/features/kurento_utils_js.html#webrtcpeer) is created with `sendSource` as `'screen'` or `'mix'`, a window will pop up and ask user to select the target window (or the entire screen) to share.
 
-[![popup-window.png](https://i.postimg.cc/MGtbT2GW/popup-window.png)](https://postimg.cc/CZBfP2Dt)
+![popup-window.png](https://i.postimg.cc/MGtbT2GW/popup-window.png)
 
 However, Things get different when WebRTC applications are running on [Electron](https://www.electronjs.org/), since no popup window will show up.
 
 In this library, we have implemented the basic screen sharing functionality for Electron applications. By default, the target sharing media source is the entire screen.
 
-#### Sharing Certain Window on Electron
+#### Sharing A Specific Window on Electron
 
-If you want to share a certain window instead of the entire screen on Electron, some coordination is required on the Electron application.
+If you want to share a specific window instead of the entire screen on Electron, some coordination is required. In this tutorial, we will show how to share a certain media source via the [Inter-Process Communication (IPC)](https://www.electronjs.org/docs/latest/tutorial/ipc) in Electron.
 
-**Step1. Get a list of screen and window media sources via `desktopCapturer`.**
+**Step1. Add a [Preload Script](https://www.electronjs.org/docs/latest/glossary#main-process) for you Electron application.**
 
 ```javascript
-// main.js of Electron application
-const {desktopCapturer} = require('electron');
+// preload.js | Electron project
+let {ipcRenderer} = require('electron');
 
-desktopCapturer.getSources({types: ['window', 'screen']}).then(async sources => {
-    for (const source of sources) {
-        //Add your media source selection logic
-    }
+ipcRenderer.on('media-source-id', (event, value) => {
+    // Write the target media source id to the window object
+    window.mediaSourceId = value;
 })
 ```
 
-The next following is a sample of media source object. The `id` field will be used in the next step.
+**Step2. Select a target media source via `desktopCapturer` in the [Main Process](https://www.electronjs.org/docs/latest/glossary#main-process) and send it to the [Renderer Process](https://www.electronjs.org/docs/latest/glossary#renderer-process).**
+
+```javascript
+// main.js | Electron project
+const {app, desktopCapturer} = require('electron');
+
+let mainWindow;
+
+const createWindow = () => {
+    mainWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+            // Append other webPreferences if necessary
+        }
+    })
+    // Add your window creation logic here
+}
+
+// Note: the desktopCapturer module only works when the app is ready
+app.whenReady().then(() => {
+    createWindow();
+    desktopCapturer.getSources({types: ['window', 'screen']}).then(async sources => {
+        let targetMediaSourceId;
+        for (const source of sources) {
+            // Add your media source selection logic here
+            targetMediaSourceId = source.id;
+        }
+        // Send the target media source to the Renderer Process
+        mainWindow.webContents.send('media-source-id', targetMediaSourceId);
+    })
+})
+```
+
+The next following is a sample of media source object.
 
 ```javascript
 // A sample of media source object
@@ -106,34 +140,21 @@ The next following is a sample of media source object. The `id` field will be us
 }
 ```
 
-**Step2. Select the target media source ID and pass it to the HTML WebRTC page .**
-
-> Note: The HTML WebRTC page is deployed remotely and not specifically designed for Electron.
-
-```javascript
-// main.js of Electron application
-const injectJs="document.getElementById('electron-media-source-id').innerText=${targetSourceId};";
-// Inject js code when the HTML WebRTC page is loaded
-tab.webview.executeJavaScript(injectJs);
-```
-
 **Explanation**
 
-In this [kurento-utils-universal](https://www.npmjs.com/package/kurento-utils-universal) library, we have created an invisible element with id `electron-media-source-id` to interact with Electron. Developers need to pass the `targetSourceId` to this element, and then the library will start sharing the target media. The relevant codes in our library are as follows:
+When the  [kurento-utils-universal](https://www.npmjs.com/package/kurento-utils-universal) library is running on Electron, the `mediaSourceId` inside the  `window` object will be used as the target media source ID. Thus, developers need to preset the `mediaSourceId` in the `window` object, and then the library will start sharing the target media. The relevant codes in our library are as follows:
 
 ```javascript
-
 screenConstrains.video = {
     mandatory: {
         chromeMediaSource: 'desktop',
-        // Use media source ID retrieved from electronMediaIdSlot
-        // electronMediaIdSlot is the invisable element with id 'electron-media-source-id'
-        chromeMediaSourceId: electronMediaIdSlot.innerText
+        // Use the mediaSourceId (if provided) inside the window object.
+        chromeMediaSourceId: window.mediaSourceId ? window.mediaSourceId : ''
     }
 };
 ```
 
-After finishing the above steps, a certain window media can be shared on Electron.
+After finishing the above steps,  you can share a specific window media on Electron.
 
 
 ---
